@@ -19,9 +19,9 @@ from rest_framework.permissions import AllowAny
 
 
 
-class RoomRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Room.objects.all()
-    serializer_class = RoomsSerializer
+# class RoomRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = Room.objects.all()
+#     serializer_class = RoomsSerializer
 
 
 class RoomApiView(APIView):
@@ -32,17 +32,41 @@ class RoomApiView(APIView):
         return Response(serializer.data,status=status.HTTP_200_OK)
     
 
+
+class RoomRetrieveApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        room = Room.objects.get(id=pk)
+        serializer = RoomsSerializer(room)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RoomDestroyApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def delete(self, request, pk):
+        room = Room.objects.get(id=pk)
+        room.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class RoomCreateApiView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
-        queryset = Room.objects.all()
-        serializer = RoomsSerializer(queryset,many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        serializer = RoomsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+class RoomUpdateApiView(APIView):
+    permission_classes = [AllowAny]
 
-
-
-
+    def put(self, request, pk):
+        room = Room.objects.get(id=pk)
+        serializer = RoomsSerializer(room, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
